@@ -14,6 +14,7 @@
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/platform_device.h>
+#include <linux/kmemdump.h>
 
 /* Device specific register offsets */
 #define PRNG_DATA_OUT		0x0000
@@ -32,11 +33,14 @@
 #define QCOM_TRNG_QUALITY	1024
 
 struct qcom_rng {
+	char start [10];
+	int region_id;
 	struct mutex lock;
 	void __iomem *base;
 	struct clk *clk;
 	struct hwrng hwrng;
 	struct qcom_rng_match_data *match_data;
+	char end[10];
 };
 
 struct qcom_rng_ctx {
@@ -192,6 +196,9 @@ static int qcom_rng_probe(struct platform_device *pdev)
 	if (IS_ERR(rng->base))
 		return PTR_ERR(rng->base);
 
+	strcpy(rng->start, "MD_RNG_ST");
+	strcpy(rng->end, "MD_RNG_en");
+
 	rng->clk = devm_clk_get_optional(&pdev->dev, "core");
 	if (IS_ERR(rng->clk))
 		return PTR_ERR(rng->clk);
@@ -217,6 +224,7 @@ static int qcom_rng_probe(struct platform_device *pdev)
 			goto fail;
 		}
 	}
+	rng->region_id = kmemdump_register("qcom_rng", rng, sizeof(*rng));
 
 	return ret;
 fail:
@@ -226,6 +234,7 @@ fail:
 
 static void qcom_rng_remove(struct platform_device *pdev)
 {
+	kmemdump_unregister(qcom_rng_dev->region_id);
 	crypto_unregister_rng(&qcom_rng_alg);
 
 	qcom_rng_dev = NULL;
