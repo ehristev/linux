@@ -48,6 +48,7 @@
 #include <linux/sched/clock.h>
 #include <linux/sched/debug.h>
 #include <linux/sched/task_stack.h>
+#include <linux/kmemdump.h>
 
 #include <linux/uaccess.h>
 #include <asm/sections.h>
@@ -4649,6 +4650,12 @@ int kmsg_dump_register(struct kmsg_dumper *dumper)
 	return err;
 }
 EXPORT_SYMBOL_GPL(kmsg_dump_register);
+
+int kmsg_kmemdump_register(void)
+{
+	return kmemdump_register("dmesg", log_buf_addr_get(), log_buf_len_get());
+}
+EXPORT_SYMBOL_GPL(kmsg_kmemdump_register);
 
 /**
  * kmsg_dump_unregister - unregister a kmsg dumper.
