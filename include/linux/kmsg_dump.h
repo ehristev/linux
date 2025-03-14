@@ -80,6 +80,8 @@ int kmsg_dump_register(struct kmsg_dumper *dumper);
 
 int kmsg_dump_unregister(struct kmsg_dumper *dumper);
 
+int kmsg_kmemdump_register(void);
+
 const char *kmsg_dump_reason_str(enum kmsg_dump_reason reason);
 #else
 static inline void kmsg_dump_desc(enum kmsg_dump_reason reason, const char *desc)
@@ -108,6 +110,11 @@ static inline int kmsg_dump_register(struct kmsg_dumper *dumper)
 }
 
 static inline int kmsg_dump_unregister(struct kmsg_dumper *dumper)
+{
+	return -EINVAL;
+}
+
+static inline int kmsg_kmemdump_register()
 {
 	return -EINVAL;
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-
+#define DEBUG
 #include <linux/device.h>
 #include <linux/errno.h>
 #include <linux/module.h>
@@ -90,6 +90,8 @@ void kmemdump_unregister(int id)
 }
 EXPORT_SYMBOL_GPL(kmemdump_unregister);
 
+extern void trace_kmemdump_register(void);
+
 static int kmemdump_register_fn(int id, void *p, void *data)
 {
 	struct kmemdump_zone *z = p;
@@ -129,6 +131,13 @@ int kmemdump_register_backend(struct kmemdump_backend *be)
 	pr_info("Region mark backend %s registered successfully.\n",
 		backend->name);
 
+	mutex_unlock(&kmemdump_lock);
+
+	/* Give kmsg the first chance */
+	kmsg_kmemdump_register();
+	trace_kmemdump_register();
+
+	mutex_lock(&kmemdump_lock);
 	/* Try to call the backend for all previously requested zones */
 	idr_for_each(&kmemdump_idr, kmemdump_register_fn, NULL);
 

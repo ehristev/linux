@@ -49,7 +49,6 @@
 #include <linux/fsnotify.h>
 #include <linux/irq_work.h>
 #include <linux/workqueue.h>
-
 #include <asm/setup.h> /* COMMAND_LINE_SIZE */
 
 #include "trace.h"
@@ -9241,9 +9240,15 @@ allocate_trace_buffer(struct trace_array *tr, struct array_buffer *buf, int size
 	/* Allocate the first page for all buffers */
 	set_buffer_entries(&tr->array_buffer,
 			   ring_buffer_size(tr->array_buffer.buffer, 0));
-
 	return 0;
 }
+extern void rb_kmemdump_register(struct array_buffer *tr);
+void trace_kmemdump_register(void)
+{
+	rb_kmemdump_register(&global_trace.array_buffer);
+//	kmemdump_register("ftrace", printk_trace->array_buffer.buffer->buffers[0]->head_page->page->data,4096);
+}
+EXPORT_SYMBOL_GPL(trace_kmemdump_register);
 
 static void free_trace_buffer(struct array_buffer *buf)
 {

@@ -2180,6 +2180,13 @@ static int rb_allocate_pages(struct ring_buffer_per_cpu *cpu_buffer,
 	return 0;
 }
 
+#include <linux/kmemdump.h>
+void rb_kmemdump_register( struct array_buffer *tr)
+{
+	kmemdump_register("ftrace", tr->buffer->buffers[0]->head_page->page->data,4096);
+}
+EXPORT_SYMBOL_GPL(rb_kmemdump_register);
+
 static struct ring_buffer_per_cpu *
 rb_allocate_cpu_buffer(struct trace_buffer *buffer, long nr_pages, int cpu)
 {
