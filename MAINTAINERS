@@ -12696,6 +12696,7 @@ S:	Maintained
 F:	Documentation/dev-tools/kmemdump.rst
 F:	include/linux/kmemdump.h
 F:	mm/kmemdump/kmemdump.c
+F:	mm/kmemdump/kmemdump_coreimage.c
 
 KMEMLEAK
 M:	Catalin Marinas <catalin.marinas@arm.com>
