@@ -14,6 +14,7 @@
 #include <linux/cpuhotplug.h>
 #include <linux/memblock.h>
 #include <linux/kmemleak.h>
+#include <linux/kmemdump.h>
 
 #include <asm/page.h>
 #include <asm/sections.h>
@@ -117,6 +118,12 @@ phys_addr_t __weak paddr_vmcoreinfo_note(void)
 	return __pa(vmcoreinfo_note);
 }
 EXPORT_SYMBOL(paddr_vmcoreinfo_note);
+
+static void vmcoreinfo_kmemdump(void)
+{
+	kmemdump_register_id(KMEMDUMP_ID_COREIMAGE_VMCOREINFO,
+			     (void *)vmcoreinfo_data, vmcoreinfo_size);
+}
 
 static int __init crash_save_vmcoreinfo_init(void)
 {
@@ -223,6 +230,7 @@ static int __init crash_save_vmcoreinfo_init(void)
 	arch_crash_save_vmcoreinfo();
 	update_vmcoreinfo_note();
 
+	vmcoreinfo_kmemdump();
 	return 0;
 }
 
