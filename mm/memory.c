@@ -77,6 +77,7 @@
 #include <linux/vmalloc.h>
 #include <linux/sched/sysctl.h>
 #include <linux/fsnotify.h>
+#include <linux/kmemdump.h>
 
 #include <trace/events/kmem.h>
 
@@ -128,6 +129,7 @@ static __always_inline bool vmf_orig_pte_uffd_wp(struct vm_fault *vmf)
  */
 void *high_memory;
 EXPORT_SYMBOL(high_memory);
+KMEMDUMP_VAR_CORE(high_memory, sizeof(high_memory));
 
 /*
  * Randomize the address space (stacks, mmaps, brk, etc.).
