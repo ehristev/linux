@@ -16,7 +16,19 @@
 
 #define BUILD_INFO_LEN		256
 #define DEBUG_KINFO_MAGIC	0xcceeddff
+extern const unsigned long kallsyms_relative_base __weak
+__section(".rodata");
+extern const unsigned int kallsyms_num_syms __weak
+__section(".rodata");
+extern const int kallsyms_offsets[] __weak;
 
+extern const u8 kallsyms_names[] __weak;
+extern const u8 kallsyms_seqs_of_names[] __weak;
+
+extern const unsigned int kallsyms_markers[] __weak;
+
+extern const u8 kallsyms_token_table[] __weak;
+extern const u16 kallsyms_token_index[] __weak;
 /*
  * Header structure must be byte-packed, since the table is provided to
  * bootloader.
@@ -128,54 +140,79 @@ static void __maybe_unused register_kinfo_region(void *priv,
 	switch (e->id) {
 	case MEMINSPECT_ID__sinittext:
 		info->_sinittext_pa = paddr;
+printk("KINFO sinittext_pa %llx %llx \n", info->_sinittext_pa, (u64)__pa_symbol(_sinittext));
 		break;
 	case MEMINSPECT_ID__einittext:
 		info->_einittext_pa = paddr;
+printk("KINFO einittext_pa %llx %llx \n", info->_einittext_pa, (u64)__pa_symbol(_einittext));
 		break;
 	case MEMINSPECT_ID__end:
 		info->_end_pa = paddr;
+printk("KINFO end_pa %llx %llx \n", info->_end_pa, (u64)__pa_symbol(_end));
 		break;
 	case MEMINSPECT_ID__text:
 		info->_text_pa = paddr;
+printk("KINFO text_pa %llx %llx \n", info->_text_pa, (u64)__pa_symbol(_text));
 		break;
 	case MEMINSPECT_ID__stext:
 		info->_stext_pa = paddr;
+printk("KINFO stext_pa %llx %llx \n", info->_stext_pa, (u64)__pa_symbol(_stext));
 		break;
 	case MEMINSPECT_ID__etext:
 		info->_etext_pa = paddr;
+printk("KINFO etext_pa %llx %llx \n", info->_etext_pa, (u64)__pa_symbol(_etext));
 		break;
 	case MEMINSPECT_ID_kallsyms_num_syms:
 		info->num_syms = *(__u32 *)e->va;
+printk("KINFO num_syms %x %x\n", info->num_syms, kallsyms_num_syms);
 		break;
 	case MEMINSPECT_ID_kallsyms_relative_base:
 		info->_relative_pa = (u64)__pa(*(u64 *)e->va);
+printk("KINFO relative_pa %llx %llx\n", info->_relative_pa,
+					(u64)__pa_symbol((volatile void *)kallsyms_relative_base));
 		break;
 	case MEMINSPECT_ID_kallsyms_offsets:
 		info->_offsets_pa = paddr;
+printk("KINFO _offsets_pa %llx %llx \n", info->_offsets_pa, 
+	(u64)__pa_symbol((volatile void *)kallsyms_offsets));
 		break;
 	case MEMINSPECT_ID_kallsyms_names:
 		info->_names_pa = paddr;
+printk("KINFO _names_pa %llx %llx \n", info->_names_pa,
+		(u64)__pa_symbol((volatile void *)kallsyms_names));
 		break;
 	case MEMINSPECT_ID_kallsyms_token_table:
 		info->_token_table_pa = paddr;
+printk("KINFO _token_table_pa %llx %llx \n", info->_token_table_pa,
+(u64)__pa_symbol((volatile void *)kallsyms_token_table));
 		break;
 	case MEMINSPECT_ID_kallsyms_token_index:
 		info->_token_index_pa = paddr;
+printk("KINFO _token_index_pa %llx %llx \n", info->_token_index_pa,
+(u64)__pa_symbol((volatile void *)kallsyms_token_index));
 		break;
 	case MEMINSPECT_ID_kallsyms_markers:
 		info->_markers_pa = paddr;
+printk("KINFO _markers_pa %llx %llx \n", info->_markers_pa,
+		(u64)__pa_symbol((volatile void *)kallsyms_markers));
 		break;
 	case MEMINSPECT_ID_kallsyms_seqs_of_names:
 		info->_seqs_of_names_pa = paddr;
+printk("KINFO _seqs_of_names_pa %llx %llx \n", info->_seqs_of_names_pa,
+		(u64)__pa_symbol((volatile void *)kallsyms_seqs_of_names));
 		break;
 	case MEMINSPECT_ID_swapper_pg_dir:
 		info->swapper_pg_dir_pa = paddr;
+printk("KINFO _swapper_pg_dir_pa %llx %llx \n", info->swapper_pg_dir_pa,
+		(u64)__pa_symbol(swapper_pg_dir));
 		break;
 	case MEMINSPECT_ID_init_uts_ns:
 		if (!e->va)
 			return;
 		uts = e->va;
 		strscpy(info->last_uts_release, uts->name.release, __NEW_UTS_LEN);
+printk("KINFO <%s> <%s> \n", info->last_uts_release, 
+init_utsname()->release);
 		break;
 	default:
 		break;
@@ -204,6 +241,7 @@ static int debug_kinfo_probe(struct platform_device *pdev)
 	struct debug_kinfo *kinfo;
 	struct kernel_info *info;
 
+#if 0
 	mem_region = of_parse_phandle(dev->of_node, "memory-region", 0);
 	if (!mem_region)
 		return dev_err_probe(dev, -ENODEV, "no such memory-region\n");
@@ -223,6 +261,7 @@ static int debug_kinfo_probe(struct platform_device *pdev)
 	if (rmem->size < sizeof(struct kernel_all_info))
 		dev_err_probe(dev, -EINVAL, "reserved memory size too small\n");
 
+#endif
 	kinfo = devm_kzalloc(dev, sizeof(*kinfo), GFP_KERNEL);
 	if (!kinfo)
 		return -ENOMEM;
@@ -230,8 +269,10 @@ static int debug_kinfo_probe(struct platform_device *pdev)
 
 	kinfo->dev = dev;
 
-	kinfo->all_info_addr = rmem->priv;
-	kinfo->all_info_size = rmem->size;
+void *cuc = kmalloc(sizeof(struct kernel_all_info), GFP_KERNEL);
+
+	kinfo->all_info_addr = cuc;
+	kinfo->all_info_size = sizeof(struct kernel_all_info);
 
 	all_info = kinfo->all_info_addr;
 
@@ -256,6 +297,8 @@ static int debug_kinfo_probe(struct platform_device *pdev)
 
 	meminspect_notifier_register(&kinfo->nb);
 	meminspect_lock_traverse(kinfo, register_kinfo_region);
+
+printk("KINFO PROBE READY!!\n");
 
 	return 0;
 }
