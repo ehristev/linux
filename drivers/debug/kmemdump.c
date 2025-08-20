@@ -82,7 +82,7 @@ int kmemdump_register_id(enum kmemdump_uid req_id, void *zone, size_t size)
 
 	if (uid >= MAX_ZONES)
 		return -ENOSPC;
-
+printk("ZONE id = %d, zone = %llx, size = %d\n", req_id, zone, size);
 	mutex_lock(&kmemdump_lock);
 
 	if (uid == KMEMDUMP_ID_NO_ID)
