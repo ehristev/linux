@@ -741,11 +741,6 @@
 			no-map;
 		};
 
-		debug_kinfo_reserved: kinfo@908c0000 {
-			reg = <0x0 0x908d0000 0x0 0x1000>;
-		//	no-map;
-		};
-
 		reserved_mem: reserved@908f0000 {
 			reg = <0x0 0x908f0000 0x0 0xe000>;
 			no-map;
