@@ -201,17 +201,18 @@ static void vmcoreinfo_kmemdump(void)
 
 	kmemdump_register_id(KMEMDUMP_ID_COREIMAGE_high_memory,
 			     (void *)&high_memory, sizeof(high_memory));
-
+#ifdef CONFIG_NUMA
 	kmemdump_register_id(KMEMDUMP_ID_COREIMAGE_node_data,
 			     (void *)&node_data,
 			     MAX_NUMNODES * sizeof(struct pglist_data));
 
 	for (i = 0; i < MAX_NUMNODES; i++) {
-		if (!node_data[i])
+		if (!NODE_DATA(i))
 			continue;
-		kmemdump_register((void *)node_data[i],
+		kmemdump_register((void *)NODE_DATA(i),
 				  roundup(sizeof(pg_data_t), SMP_CACHE_BYTES));
 	}
+#endif
 
 	kmemdump_register_id(KMEMDUMP_ID_COREIMAGE_mem_section,
 			     (void *)&mem_section, sizeof(mem_section));
