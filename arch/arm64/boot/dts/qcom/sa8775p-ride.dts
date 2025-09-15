@@ -15,3 +15,10 @@
 	model = "Qualcomm SA8775P Ride";
 	compatible = "qcom,sa8775p-ride", "qcom,sa8775p";
 };
+
+&soc {
+	debug-kinfo {
+		compatible = "google,debug-kinfo";
+		memory-region = <&kinfo_region>;
+	};
+};
