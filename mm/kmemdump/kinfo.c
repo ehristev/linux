@@ -11,7 +11,6 @@
 #include <linux/of.h>
 #include <linux/of_reserved_mem.h>
 #include <linux/kmemdump.h>
-#include <linux/module.h>
 #include <linux/utsname.h>
 
 #define BUILD_INFO_LEN		256
@@ -104,7 +103,6 @@ static int build_info_set(const char *str, const struct kernel_param *kp)
 	if (kinfo->all_info_addr == 0 || kinfo->all_info_size == 0)
 		return -ENAVAIL;
 
-	all_info = (struct kernel_all_info *)kinfo->all_info_addr;
 	build_info_size = sizeof(all_info->info.build_info);
 
 	memcpy(&all_info->info.build_info, str, min(build_info_size - 1,
