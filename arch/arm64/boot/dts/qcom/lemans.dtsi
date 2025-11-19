@@ -758,11 +758,6 @@
 			hwlocks = <&tcsr_mutex 3>;
 		};
 
-		kinfo_region: kinfo@908d0000 {
-			reg = <0x0 0x908d0000 0x0 0x1000>;
-			no-map;
-		};
-
 		tz_sail_mailbox_mem: tz-sail-mailbox@90c00000 {
 			reg = <0x0 0x90c00000 0x0 0x100000>;
 			no-map;
